@@ -8,15 +8,6 @@ from fastapi import FastAPI, Request
 logger = logging.getLogger('gunicorn.error')
 app = FastAPI()
 
-def addProfile(name):
-    return {
-        'apiVersion': 'kubeflow.org/v1',
-        'kind': 'Profile',
-        'metadata': {
-            'name': name
-        }
-    }
-
 def createSecret(namespace):
     return {
         'apiVersion': 'v1',
