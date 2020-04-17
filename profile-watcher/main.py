@@ -2,74 +2,39 @@ import base64
 import logging
 import os
 import socket
+import yaml
 
 from fastapi import FastAPI, Request
+from string import Template
 
 logger = logging.getLogger('gunicorn.error')
 app = FastAPI()
 
 def createSecret(namespace):
+    with open('resources/gpr-secret.yaml', 'r') as file:
+        data = file.read().rstrip()
+
+    template = Template(data)
+    return yaml.safe_load(template.substitute(namespace=namespace, secret=base64.b64encode(bytes(os.environ['GPR_SECRET'], 'utf-8'))))
+
+def createPodDefault(namespace):
+    with open('resources/poddefault.yaml', 'r') as file:
+        data = file.read().rstrip()
+
+    template = Template(data)
+    return yaml.safe_load(template.substitute(namespace=namespace))
     return {
         'apiVersion': 'v1',
-        'kind': 'Secret',
         'metadata': {
-            'annotations': {
-                'gpr-synced': 'true'
-            },
-            'name': 'gpr-credentials',
             'namespace': namespace
             },
-        'data': {
-            '.dockerconfigjson': base64.b64encode(bytes(os.environ['GPR_SECRET'], 'utf-8'))
         }
     }
 
-def createPodDefault(namespace):
     return {
-        'apiVersion': 'kubeflow.org/v1alpha1',
-        'kind': 'PodDefault',
         'metadata': {
-            'name': 'naisflow',
             'namespace': namespace
             },
-        'spec': {
-            'desc': 'Add NAISFlow necessities',
-            'env': [
-                {
-                    'name': 'NO_PROXY',
-                    'value': 'localhost,127.0.0.1,10.254.0.1,.local,.adeo.no,.nav.no,.aetat.no,.devillo.no,.oera.no,.nais.io'
-                },
-                {
-                    'name': 'HTTP_PROXY',
-                    'value': 'http://webproxy.nais:8088'
-                },
-                {
-                    'name': 'HTTPS_PROXY',
-                    'value': 'http://webproxy.nais:8088'
-                },
-                {
-                    'name': 'no_proxy',
-                    'value': 'localhost,127.0.0.1,10.254.0.1,.local,.adeo.no,.nav.no,.aetat.no,.devillo.no,.oera.no,.nais.io'
-                },
-                {
-                    'name': 'http_proxy',
-                    'value': 'http://webproxy.nais:8088'
-                },
-                {
-                    'name': 'https_proxy',
-                    'value': 'http://webproxy.nais:8088'
-                }
-            ],
-            'imagePullSecrets': [
-                {
-                    'name': 'gpr-credentials'
-                }
-            ],
-            'selector': {
-                'matchLabels': {
-                    'naisflow': 'true'
-                }
-            }
         }
     }
 
