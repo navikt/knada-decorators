@@ -16,6 +16,12 @@ that are necessary for each user of Kubeflow.
 
 You need to install `fastapi` for testing locally.
 
+Run it locally with:
+
+```
+GPR_SECRET="hello world" uvicorn main:app --port 8080
+```
+
 ### Test cURL
 
 ```
