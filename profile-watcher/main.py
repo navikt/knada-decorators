@@ -15,7 +15,7 @@ def createSecret(namespace):
         data = file.read().rstrip()
 
     template = Template(data)
-    return yaml.safe_load(template.substitute(namespace=namespace, secret=base64.b64encode(bytes(os.environ['GPR_SECRET'], 'utf-8'))))
+    return yaml.safe_load(template.substitute(namespace=namespace, secret=base64.b64encode(bytes(os.environ['GPR_SECRET'], 'utf-8')).decode()))
 
 def createPodDefault(namespace):
     with open('resources/poddefault.yaml', 'r') as file:
@@ -37,7 +37,7 @@ def createCaBundlePem(namespace):
             },
             'binaryData': {
             'ca-bundle.pem': """|
-${0}""".format(data)
+{0}""".format(data)
         }
     }
 
@@ -54,7 +54,7 @@ def createCaBundleJks(namespace):
             },
             'binaryData': {
             'ca-bundle.jks': """|
-${0}""".format(data)
+{0}""".format(data)
         }
     }
 
