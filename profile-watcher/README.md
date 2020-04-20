@@ -14,7 +14,7 @@ that are necessary for each user of Kubeflow.
 
 ## Development and testing
 
-You need to install `fastapi` for testing locally.
+You need to install `fastapi` for testing locally, but it is supplied as default in the Docker image.
 
 Run it locally with:
 
