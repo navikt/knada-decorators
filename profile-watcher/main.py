@@ -10,12 +10,18 @@ from string import Template
 logger = logging.getLogger('gunicorn.error')
 app = FastAPI()
 
+def getStringAsBase64(input):
+    return getBytesAsBase64(bytes(input, 'utf-8'))
+
+def getBytesAsBase64(input):
+    return base64.b64encode(input).decode()
+
 def createSecret(namespace):
     with open('resources/gpr-secret.yaml', 'r') as file:
         data = file.read().rstrip()
 
     template = Template(data)
-    return yaml.safe_load(template.substitute(namespace=namespace, secret=base64.b64encode(bytes(os.environ['GPR_SECRET'], 'utf-8')).decode()))
+    return yaml.safe_load(template.substitute(namespace=namespace, secret=getStringAsBase64(os.environ['GPR_SECRET'])))
 
 def createPodDefault(namespace):
     with open('resources/poddefault.yaml', 'r') as file:
@@ -36,8 +42,7 @@ def createCaBundlePem(namespace):
             'namespace': namespace
             },
             'binaryData': {
-            'ca-bundle.pem': """|
-{0}""".format(data)
+            'ca-bundle.pem': getStringAsBase64(data)
         }
     }
 
@@ -53,8 +58,7 @@ def createCaBundleJks(namespace):
             'namespace': namespace
             },
             'binaryData': {
-            'ca-bundle.jks': """|
-{0}""".format(data)
+            'ca-bundle.jks': getBytesAsBase64(data)
         }
     }
 
@@ -66,4 +70,4 @@ async def index():
 async def sync(request: Request):
     json = await request.json()
     name = json['object']['metadata']['name']
-    return {'labels': {'naisflow-synced': 'true'}, 'attachments': [createSecret(name), createPodDefault(name), createCaBundlePem(name), createCaBundleJks(name)]}
+    return {'labels': {'naisflow-synced': 'true'}, 'attachments': [createSecret(name), createPodDefault(name), createCaBundleJks(name)]}
