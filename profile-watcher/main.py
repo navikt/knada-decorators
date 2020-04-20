@@ -42,8 +42,8 @@ def createCaBundlePem(namespace):
     }
 
 def createCaBundleJks(namespace):
-    with open('resources/ca-bundle.jks', 'r') as file:
-        data = file.read().rstrip()
+    with open('resources/ca-bundle.jks', 'rb') as file:
+        data = file.read()
 
     return {
         'apiVersion': 'v1',
