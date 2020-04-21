@@ -9,7 +9,6 @@ on:
       - 'profile-watcher/**'
 
 env:
-  IMAGE: navikt/naisflow-decorators
   KUBEFLOW_REPO_URL: https://api.github.com/repos/navikt/kubeflow-yaml/dispatches
 
 jobs:
@@ -30,12 +29,12 @@ jobs:
       - name: Build dataverk image
         run: |
           cd profile-watcher
-          docker build -t ${IMAGE}:${IMAGE_TAG} .
+          docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME":"$IMAGE_TAG" .
       - name: Push dataverk image
-        run: docker push ${IMAGE}:${IMAGE_TAG}
+        run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME":"$IMAGE_TAG"
       - name: Notify navikt/kubeflow-yaml
         run: |
           curl -X POST "${KUBEFLOW_REPO_URL}" \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u ${{ secrets.KUBEFLOW_YAML_ACCESS_TOKEN }} \
-          --data '{"event_type": "profile-watcher-tag, "client_payload": { "image": "'"${IMAGE}"'", "tag": "'"${IMAGE_TAG}"'" }}'
+          --data '{"event_type": "profile-watcher-tag, "client_payload": { "tag": "'"${IMAGE_TAG}"'" }}'
