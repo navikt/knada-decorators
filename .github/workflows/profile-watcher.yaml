@@ -26,12 +26,12 @@ jobs:
           DOCKER_USERNAME: x-access-token
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
-      - name: Build dataverk image
+      - name: Build profile watcher image
         run: |
           cd profile-watcher
-          docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME":"$IMAGE_TAG" .
+          docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME"/"$IMAGE_TAG" .
       - name: Push dataverk image
-        run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME":"$IMAGE_TAG"
+        run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME"/"$IMAGE_TAG"
       - name: Notify navikt/kubeflow-yaml
         run: |
           curl -X POST "${KUBEFLOW_REPO_URL}" \
