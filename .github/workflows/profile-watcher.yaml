@@ -29,9 +29,9 @@ jobs:
       - name: Build profile watcher image
         run: |
           cd profile-watcher
-          docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME"/"$IMAGE_TAG" .
-      - name: Push dataverk image
-        run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME"/"$IMAGE_TAG"
+          docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG" .
+      - name: Push profile watcher image
+        run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG"
       - name: Notify navikt/kubeflow-yaml
         run: |
           curl -X POST "${KUBEFLOW_REPO_URL}" \
