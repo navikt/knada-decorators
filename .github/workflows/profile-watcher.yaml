@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - '.github/workflows/profile-watcher.yaml'
       - 'profile-watcher/**'
 
 env:
@@ -27,7 +28,9 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
       - name: Build dataverk image
-        run: docker build -t ${IMAGE}:${IMAGE_TAG} -f profile-watcher/Dockerfile .
+        run: |
+          cd profile-watcher
+          docker build -t ${IMAGE}:${IMAGE_TAG} .
       - name: Push dataverk image
         run: docker push ${IMAGE}:${IMAGE_TAG}
       - name: Notify navikt/kubeflow-yaml
