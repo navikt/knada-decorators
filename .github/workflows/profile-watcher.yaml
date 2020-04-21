@@ -37,4 +37,4 @@ jobs:
           curl -X POST "${KUBEFLOW_REPO_URL}" \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u ${{ secrets.KUBEFLOW_YAML_ACCESS_TOKEN }} \
-          --data '{"event_type": "profile-watcher-tag, "client_payload": { "tag": "'"${IMAGE_TAG}"'" }}'
+          --data '{"event_type": "profile-watcher-tag", "client_payload": { "tag": "'"${IMAGE_TAG}"'" }}'
