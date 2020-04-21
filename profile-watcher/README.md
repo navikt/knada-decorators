@@ -8,7 +8,7 @@ that are necessary for each user of Kubeflow.
 
 * PodDefaults - Ensure that each notebook has necessary addons related to NAV
 * Secrets - Credentials for Github Package Registry
-* Configmaps - Creates the caBundle configmaps
+* Configmaps - Creates the JKS caBundle configmaps
 
 ## Installations
 
