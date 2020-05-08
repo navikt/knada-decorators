@@ -12,8 +12,8 @@ env:
   KUBEFLOW_REPO_URL: https://api.github.com/repos/navikt/kubeflow-yaml/dispatches
 
 jobs:
-  build-naisflow-dataverk:
-    name: Build profile watcher image
+  build-push-notify:
+    name: Build image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,9 +26,9 @@ jobs:
           DOCKER_USERNAME: x-access-token
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
-      - name: Build profile watcher image
+      - name: Build image
         run: docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG" profile-watcher
-      - name: Push profile watcher image
+      - name: Push image
         run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG"
       - name: Notify navikt/kubeflow-yaml
         run: |
