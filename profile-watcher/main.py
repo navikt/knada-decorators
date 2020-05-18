@@ -30,22 +30,6 @@ def createPodDefault(namespace):
     template = Template(data)
     return yaml.safe_load(template.substitute(namespace=namespace))
 
-def createCaBundlePem(namespace):
-    with open('resources/ca-bundle.pem', 'r') as file:
-        data = file.read().rstrip()
-
-    return {
-        'apiVersion': 'v1',
-        'kind': 'ConfigMap',
-        'metadata': {
-            'name': 'ca-bundle-pem',
-            'namespace': namespace
-            },
-            'binaryData': {
-            'ca-bundle.pem': getStringAsBase64(data)
-        }
-    }
-
 def createCaBundleJks(namespace):
     with open('resources/ca-bundle.jks', 'rb') as file:
         data = file.read()
