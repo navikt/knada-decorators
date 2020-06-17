@@ -4,9 +4,8 @@ NAISFlow Decorators
 > DecoratorController is an API provided by Metacontroller, designed to facilitate adding new behavior to existing
 > resources. You can define rules for which resources to watch, as well as filters on labels and annotations.
 
-Learn more over at [metacontroller.app](https://metacontroller.app/api/decoratorcontroller/). This is hopefully going to
-be a collection of decorators that will aid our work with Kubeflow.
+[Metacontroller.app](https://metacontroller.app/api/decoratorcontroller/) brukes for å automatisere oppgaver som har vært litt for kompliserte for rene k8s-ressurser.
 
 ## Metacontroller
 
-The Metacontroller is installed via [kubeflow-yaml](https://github.com/navikt/kubeflow-yaml/).
+Metacontroller og underapplikasjoner blir installert via [naisflow-yaml](https://github.com/navikt/naisflow-yaml/). Og lever i et eget namespace som heter `metacontroller`.
