@@ -9,7 +9,7 @@ on:
       - 'cabundle-creator/**'
 
 env:
-  KUBEFLOW_REPO_URL: https://api.github.com/repos/navikt/kubeflow-yaml/dispatches
+  KNADA_REPO_URL: https://api.github.com/repos/navikt/knada-yaml/dispatches
 
 jobs:
   build-push-notify:
@@ -30,9 +30,9 @@ jobs:
         run: docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG" cabundle-creator
       - name: Push image
         run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG"
-      - name: Notify navikt/kubeflow-yaml
+      - name: Notify navikt/knada-yaml
         run: |
-          curl -X POST "${KUBEFLOW_REPO_URL}" \
+          curl -X POST "${KNADA_REPO_URL}" \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u ${{ secrets.KUBEFLOW_YAML_ACCESS_TOKEN }} \
           --data '{"event_type": "cabundle-creator-tag", "client_payload": { "tag": "'"${IMAGE_TAG}"'" }}'
