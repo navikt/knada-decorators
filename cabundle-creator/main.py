@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from kubernetes import client, config
 from sys import argv
 
+blocklist = ["nais"]
 cabundleName = "ca-bundle-pem"
 logger = logging.getLogger('gunicorn.error')
 app = FastAPI()
@@ -47,6 +48,8 @@ async def index():
 async def sync(request: Request):
     json = await request.json()
     name = json['object']['metadata']['name']
+    if name in blocklist:
+        return {}
     logger.info('Creating caBundle for {}'.format(name))
     configmap = createConfigmap(name)
     deleteAndCreateCaBundle(configmap, name)
