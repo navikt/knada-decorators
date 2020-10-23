@@ -40,9 +40,12 @@ def createGitCloneSecret(namespace):
         data = file.read().rstrip()
 
     template = Template(data)
-    return yaml.safe_load(template.substitute(namespace=namespace,
-                                              appid=getStringAsBase64(os.environ['GITHUB_APP_ID']),
-                                              privkey=getStringAsBase64(os.environ['GITHUB_PRIVATE_KEY'])))
+    secret = yaml.safe_load(template.substitute(namespace=namespace,
+                                                appid=getStringAsBase64(os.environ['GITHUB_APP_ID']),
+                                                privkey=getStringAsBase64(os.environ['GITHUB_PRIVATE_KEY'])))
+    api = client.CoreV1Api()
+    api.create_namespaced_secret(namespace, secret)
+
 
 def deleteCaBundle(api, namespace):
     configmaps = api.list_namespaced_config_map(namespace)
@@ -71,4 +74,5 @@ async def sync(request: Request):
     logger.info('Creating caBundle for {}'.format(name))
     configmap = createConfigmap(name)
     deleteAndCreateCaBundle(configmap, name)
+    logger.info('Creating git secret for {}'.format(name))
     createGitCloneSecret(name)
