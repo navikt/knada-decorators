@@ -1,4 +1,4 @@
-NAISFlow Decorators
+Knada Decorators
 ===================
 
 > DecoratorController is an API provided by Metacontroller, designed to facilitate adding new behavior to existing
@@ -8,4 +8,4 @@ NAISFlow Decorators
 
 ## Metacontroller
 
-Metacontroller og underapplikasjoner blir installert via [naisflow-yaml](https://github.com/navikt/naisflow-yaml/). Og lever i et eget namespace som heter `metacontroller`.
+Metacontroller og underapplikasjoner blir installert via [knada-yaml](https://github.com/navikt/knada-yaml/). Og lever i et eget namespace som heter `metacontroller`.

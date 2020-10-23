@@ -1,9 +1,12 @@
+import os
+import base64
 import logging
 import socket
+import yaml
 
 from fastapi import FastAPI, Request
 from kubernetes import client, config
-from sys import argv
+from string import Template
 
 blocklist = ["nais"]
 cabundleName = "ca-bundle-pem"
@@ -11,6 +14,12 @@ logger = logging.getLogger('gunicorn.error')
 app = FastAPI()
 
 config.load_incluster_config()
+
+def getStringAsBase64(input):
+    return getBytesAsBase64(bytes(input, 'utf-8'))
+
+def getBytesAsBase64(input):
+    return base64.b64encode(input).decode()
 
 def createConfigmap(namespace):
     with open('resources/ca-bundle.pem', 'r') as file:
@@ -25,6 +34,15 @@ def createConfigmap(namespace):
         data={
             'ca-bundle.pem': data
         })
+
+def createGitCloneSecret(namespace):
+    with open('resources/git-clone-secret.yaml', 'r') as file:
+        data = file.read().rstrip()
+
+    template = Template(data)
+    return yaml.safe_load(template.substitute(namespace=namespace,
+                                              appid=getStringAsBase64(os.environ['GITHUB_APP_ID']),
+                                              privkey=getStringAsBase64(os.environ['GITHUB_PRIVATE_KEY'])))
 
 def deleteCaBundle(api, namespace):
     configmaps = api.list_namespaced_config_map(namespace)
@@ -53,3 +71,4 @@ async def sync(request: Request):
     logger.info('Creating caBundle for {}'.format(name))
     configmap = createConfigmap(name)
     deleteAndCreateCaBundle(configmap, name)
+    createGitCloneSecret(name)
