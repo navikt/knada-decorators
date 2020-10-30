@@ -68,22 +68,11 @@ def create_git_clone_secret(namespace):
                                               privkey=get_string_as_base64(os.environ['GITHUB_PRIVATE_KEY'])))
 
 
-def delete_git_clone_secret(api: client.CoreV1Api, namespace):
-    secrets = api.list_namespaced_secret(namespace)
-    for secret in secrets.items:
-        if secret.metadata.name == git_clone_secret_name:
-            response = api.delete_namespaced_secret(git_clone_secret_name, namespace)
-            if response.status != 'Status':
-                logger.error(response)
-            return
-
-
-def delete_and_create_git_clone_secret(namespace):
+def create_or_update_git_clone_secret(namespace):
     api = client.CoreV1Api()
-    delete_git_clone_secret(api, namespace)
-    logger.info('Creating git secret for {}'.format(namespace))
+    logger.info('Creating or updating git secret for {}'.format(namespace))
     secret = create_git_clone_secret(namespace)
-    api.create_namespaced_secret(namespace, secret)
+    api.replace_namespaced_secret(git_clone_secret_name, namespace, secret)
 
 
 @app.get("/")
@@ -98,4 +87,4 @@ async def sync(request: Request):
     if namespace_name in blocklist:
         return {}
     delete_and_create_cabundle(namespace_name)
-    delete_and_create_git_clone_secret(namespace_name)
+    create_or_update_git_clone_secret(namespace_name)
