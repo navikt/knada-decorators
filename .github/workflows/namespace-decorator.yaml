@@ -1,12 +1,12 @@
-name: Build and deploy Profile Watcher
+name: Build and deploy Namespace Decorator
 
 on:
   push:
     branches:
       - master
     paths:
-      - '.github/workflows/cabundle-creator.yaml'
-      - 'cabundle-creator/**'
+      - '.github/workflows/namespace-decorator.yaml'
+      - 'namespace-decorator/**'
 
 env:
   KNADA_REPO_URL: https://api.github.com/repos/navikt/knada-yaml/dispatches
@@ -20,14 +20,14 @@ jobs:
         uses: actions/checkout@master
       - name: Set image tag
         run: |
-          echo ::set-env name=IMAGE_TAG::cabundle-creator:$(git log -1 --pretty=%ad --date=format:%Y-%m-%d)-$(git log --pretty=format:'%h' -n 1)
+          echo ::set-env name=IMAGE_TAG::namespace-decorator:$(git log -1 --pretty=%ad --date=format:%Y-%m-%d)-$(git log --pretty=format:'%h' -n 1)
       - name: Login to Github Package Registry
         env:
           DOCKER_USERNAME: x-access-token
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
       - name: Build image
-        run: docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG" cabundle-creator
+        run: docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG" namespace-decorator
       - name: Push image
         run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG"
       - name: Notify navikt/knada-yaml
@@ -35,4 +35,4 @@ jobs:
           curl -X POST "${KNADA_REPO_URL}" \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u ${{ secrets.KUBEFLOW_YAML_ACCESS_TOKEN }} \
-          --data '{"event_type": "cabundle-creator-tag", "client_payload": { "tag": "'"${IMAGE_TAG}"'" }}'
+          --data '{"event_type": "namespace-decorator-tag", "client_payload": { "tag": "'"${IMAGE_TAG}"'" }}'

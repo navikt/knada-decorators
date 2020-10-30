@@ -1,3 +1,6 @@
+![](https://github.com/navikt/knada-decorators/workflows/Build%20and%20deploy%20Profile%20Watcher/badge.svg)
+![](https://github.com/navikt/knada-decorators/workflows/Build%20and%20deploy%20Namespace%20Decorator/badge.svg)
+
 Knada Decorators
 ===================
 
