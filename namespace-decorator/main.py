@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from kubernetes import client, config
 from string import Template
 
-blocklist = ["nais"]
+blocklist = ["nais", "gatekeeper-system"]
 cabundle_name = "ca-bundle-pem"
 git_clone_secret_name = "git-clone-keys"
 logger = logging.getLogger('gunicorn.error')
