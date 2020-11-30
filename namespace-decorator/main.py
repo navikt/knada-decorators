@@ -72,7 +72,13 @@ def create_or_update_git_clone_secret(namespace):
     api = client.CoreV1Api()
     logger.info('Creating or updating git secret for {}'.format(namespace))
     secret = create_git_clone_secret(namespace)
-    api.replace_namespaced_secret(git_clone_secret_name, namespace, secret)
+    try:
+        api.replace_namespaced_secret(git_clone_secret_name, namespace, secret)
+    except client.ApiException as error:
+        if error.status == 404:
+            api.create_namespaced_secret(namespace, secret)
+        else:
+            raise
 
 
 @app.get("/")
