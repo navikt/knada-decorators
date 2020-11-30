@@ -74,7 +74,7 @@ def create_or_update_git_clone_secret(namespace):
     secret = create_git_clone_secret(namespace)
     try:
         api.replace_namespaced_secret(git_clone_secret_name, namespace, secret)
-    except client.ApiException as error:
+    except client.exceptions.ApiException as error:
         if error.status == 404:
             api.create_namespaced_secret(namespace, secret)
         else:
