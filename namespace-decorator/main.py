@@ -81,6 +81,28 @@ def create_or_update_git_clone_secret(namespace):
             raise
 
 
+def create_ghcr_secret(namespace):
+    with open('resources/ghcr-secret.yaml', 'r') as file:
+        data = file.read().rstrip()
+
+    template = Template(data)
+    return yaml.safe_load(template.substitute(namespace=namespace,
+                                              secret=get_string_as_base64(os.environ['GHCR_SECRET'])))
+
+
+def create_or_update_ghcr_secret(namespace):
+    api = client.CoreV1Api()
+    logger.info('Creating or updating ghcr secret for {}'.format(namespace))
+    secret = create_ghcr_secret(namespace)
+    try:
+        api.replace_namespaced_secret(git_clone_secret_name, namespace, secret)
+    except client.exceptions.ApiException as error:
+        if error.status == 404:
+            api.create_namespaced_secret(namespace, secret)
+        else:
+            raise
+
+
 @app.get("/")
 async def index():
     return {"message": "Hello from {}".format(socket.gethostname())}
@@ -94,3 +116,4 @@ async def sync(request: Request):
         return {}
     delete_and_create_cabundle(namespace_name)
     create_or_update_git_clone_secret(namespace_name)
+    create_or_update_ghcr_secret(namespace_name)
