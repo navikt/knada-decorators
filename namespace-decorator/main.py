@@ -11,6 +11,7 @@ from string import Template
 blocklist = ["nais", "gatekeeper-system", "aura", "knada"]
 cabundle_name = "ca-bundle-pem"
 git_clone_secret_name = "git-clone-keys"
+ghcr_secret_name = "ghcr-credentials"
 logger = logging.getLogger('gunicorn.error')
 app = FastAPI()
 
@@ -95,7 +96,7 @@ def create_or_update_ghcr_secret(namespace):
     logger.info('Creating or updating ghcr secret for {}'.format(namespace))
     secret = create_ghcr_secret(namespace)
     try:
-        api.replace_namespaced_secret(git_clone_secret_name, namespace, secret)
+        api.replace_namespaced_secret(ghcr_secret_name, namespace, secret)
     except client.exceptions.ApiException as error:
         if error.status == 404:
             api.create_namespaced_secret(namespace, secret)
