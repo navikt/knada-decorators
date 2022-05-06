@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from kubernetes import client, config
 from string import Template
 
-blocklist = ["nais", "gatekeeper-system", "aura", "knada"]
+blocklist = ["aura", "nais", "knada", "metacontroller"]
 cabundle_name = "ca-bundle-pem"
 git_clone_secret_name = "git-clone-keys"
 ghcr_secret_name = "ghcr-credentials"
