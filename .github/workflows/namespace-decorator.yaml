@@ -9,30 +9,30 @@ on:
       - 'namespace-decorator/**'
 
 env:
-  KNADA_REPO_URL: https://api.github.com/repos/navikt/knada-yaml/dispatches
+  IMAGE: ghcr.io/navikt/knada-decorators
 
 jobs:
   build-push-notify:
     name: Build Push Notify
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
-      - name: Set image tag
-        run: |
-          echo "IMAGE_TAG=namespace-decorator:$(git log -1 --pretty=%ad --date=format:%Y-%m-%d)-$(git log --pretty=format:'%h' -n 1)" >> $GITHUB_ENV
-      - name: Login to Github Package Registry
-        env:
-          DOCKER_USERNAME: x-access-token
-          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
-      - name: Build image
-        run: docker build -t "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG" namespace-decorator
-      - name: Push image
-        run: docker push "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$IMAGE_TAG"
+      - uses: actions/checkout@v3
+      - run: echo TAG=namespace-$(git log -1 --pretty=%ad --date=format:%Y-%m-%d)-$(git log --pretty=format:'%h' -n 1)" >> $GITHUB_ENV
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: docker build -t $IMAGE:$TAG namespace-decorator
+      - run: docker push $IMAGE:$TAG
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          app-id: ${{ secrets.APP_ID }}
       - name: Notify navikt/knada-yaml
         run: |
-          curl -X POST "${KNADA_REPO_URL}" \
+          curl -X POST https://api.github.com/repos/navikt/knada-yaml/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u ${{ secrets.KUBEFLOW_YAML_ACCESS_TOKEN }} \
-          --data '{"event_type": "namespace-decorator-tag", "client_payload": { "tag": "'"${IMAGE_TAG}"'" }}'
+          -H 'Authorization: token ${{ steps.get-token.outputs.token }}' \
+          --data '{"event_type": update-image, "client_payload": { "image": "'"${IMAGE}"'", "tag": "'"${TAG}"'" }}'
