@@ -35,4 +35,4 @@ jobs:
           curl -X POST https://api.github.com/repos/navikt/knada-yaml/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -H 'Authorization: token ${{ steps.get-token.outputs.token }}' \
-          --data '{"event_type": update-image, "client_payload": { "image": "'"${IMAGE}"'", "tag": "'"${TAG}"'" }}'
+          --data '{"event_type": "update-image", "client_payload": { "image": "'"${IMAGE}"'", "tag": "'"${TAG}"'" }}'
