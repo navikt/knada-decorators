@@ -9,7 +9,6 @@ from kubernetes import client, config
 from string import Template
 
 blocklist = ["aura", "nais", "knada", "metacontroller"]
-cabundle_name = "ca-bundle-pem"
 git_clone_secret_name = "git-clone-keys"
 ghcr_secret_name = "ghcr-credentials"
 logger = logging.getLogger('gunicorn.error')
@@ -26,26 +25,26 @@ def get_bytes_as_base64(input):
     return base64.b64encode(input).decode()
 
 
-def create_configmap(namespace):
-    with open('resources/ca-bundle.pem', 'r') as file:
+def create_configmap(namespace, cm_name, file_name):
+    with open(f'resources/{file_name}', 'r') as file:
         data = file.read().rstrip()
 
     return client.V1ConfigMap(
         api_version="v1",
         kind="ConfigMap",
         metadata=client.V1ObjectMeta(
-            name=cabundle_name,
+            name=cm_name,
             namespace=namespace),
         data={
-            'ca-bundle.pem': data
+            file_name: data
         })
 
 
-def delete_cabundle(api: client.CoreV1Api, namespace):
+def delete_configmap(api: client.CoreV1Api, namespace, cm_name):
     configmaps = api.list_namespaced_config_map(namespace)
     for configmap in configmaps.items:
-        if configmap.metadata.name == cabundle_name:
-            response = api.delete_namespaced_config_map(cabundle_name, namespace)
+        if configmap.metadata.name == cm_name:
+            response = api.delete_namespaced_config_map(cm_name, namespace)
             if response.status != 'Status':
                 logger.error(response)
             return
@@ -53,9 +52,17 @@ def delete_cabundle(api: client.CoreV1Api, namespace):
 
 def delete_and_create_cabundle(namespace):
     api = client.CoreV1Api()
-    delete_cabundle(api, namespace)
+    delete_configmap(api, namespace, "ca-bundle-pem")
     logger.info('Creating caBundle for {}'.format(namespace))
-    configmap = create_configmap(namespace)
+    configmap = create_configmap(namespace, "ca-bundle-pem", "ca-bundle.pem")
+    api.create_namespaced_config_map(namespace, configmap)
+
+
+def delete_and_create_celery_config(namespace):
+    api = client.CoreV1Api()
+    delete_configmap(api, namespace, "celery-config")
+    logger.info('Creating celery config for {}'.format(namespace))
+    configmap = create_configmap(namespace, "celery-config", "celery_config.py")
     api.create_namespaced_config_map(namespace, configmap)
 
 
@@ -116,5 +123,7 @@ async def sync(request: Request):
     if namespace_name in blocklist:
         return {}
     delete_and_create_cabundle(namespace_name)
+    delete_and_create_celery_config(namespace_name)
     create_or_update_git_clone_secret(namespace_name)
     create_or_update_ghcr_secret(namespace_name)
+
