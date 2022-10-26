@@ -58,7 +58,7 @@ def delete_and_create_cabundle(namespace):
     api.create_namespaced_config_map(namespace, configmap)
 
 
-def delete_and_create_celery_config(namespace):
+def create_or_update_celery_config(namespace):
     api = client.CoreV1Api()
     logger.info('Creating or updating celery config for {}'.format(namespace))
     configmap = create_configmap(namespace, "celery-config", "celery_config.py")
