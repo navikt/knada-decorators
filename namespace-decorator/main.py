@@ -67,8 +67,8 @@ def create_or_update_celery_config(namespace):
     except client.exceptions.ApiException as error:
         if error.status == 404:
             api.create_namespaced_config_map(namespace, configmap)
-    else:
-        raise
+        else:
+            raise
 
 
 def create_git_clone_secret(namespace):
