@@ -122,7 +122,7 @@ async def sync(request: Request):
     if namespace_name in blocklist:
         return {}
     delete_and_create_cabundle(namespace_name)
-    delete_and_create_celery_config(namespace_name)
+    create_or_update_celery_config(namespace_name)
     create_or_update_git_clone_secret(namespace_name)
     create_or_update_ghcr_secret(namespace_name)
 
