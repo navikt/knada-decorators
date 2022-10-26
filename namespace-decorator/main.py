@@ -60,10 +60,9 @@ def delete_and_create_cabundle(namespace):
 
 def delete_and_create_celery_config(namespace):
     api = client.CoreV1Api()
-    delete_configmap(api, namespace, "celery-config")
-    logger.info('Creating celery config for {}'.format(namespace))
+    logger.info('Creating or updating celery config for {}'.format(namespace))
     configmap = create_configmap(namespace, "celery-config", "celery_config.py")
-    api.create_namespaced_config_map(namespace, configmap)
+    api.patch_namespaced_config_map("celery-config", namespace, configmap)
 
 
 def create_git_clone_secret(namespace):
