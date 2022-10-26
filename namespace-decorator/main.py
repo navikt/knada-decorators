@@ -62,7 +62,13 @@ def create_or_update_celery_config(namespace):
     api = client.CoreV1Api()
     logger.info('Creating or updating celery config for {}'.format(namespace))
     configmap = create_configmap(namespace, "celery-config", "celery_config.py")
-    api.patch_namespaced_config_map("celery-config", namespace, configmap)
+    try:
+        api.patch_namespaced_config_map("celery-config", namespace, configmap)
+    except client.exceptions.ApiException as error:
+        if error.status == 404:
+            api.create_namespaced_config_map(namespace, configmap)
+    else:
+        raise
 
 
 def create_git_clone_secret(namespace):
